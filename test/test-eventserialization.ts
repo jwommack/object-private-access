@@ -6,7 +6,7 @@ import * as assert from 'assert/strict';
 
 describe('Event Serialization', function() {
   let pub: GenericEventPublic;
-  let priv: any; //GenericEventPrivate;
+  let priv: GenericEventPrivate;
   beforeEach(function() {
     // Reset the objects
     pub = new GenericEventPublic();
@@ -16,7 +16,7 @@ describe('Event Serialization', function() {
   describe('Public parameter object', function() {
     it('public should have object style access', function() {
       expect(pub.__hiddenValue).to.be.true
-      console.log(pub, JSON.stringify(pub), pub.__hiddenValue);
+      //console.log(pub, JSON.stringify(pub), pub.__hiddenValue);
       expect(pub, 'property like').to.have.property('__hiddenValue', true);
     });
   });
@@ -24,11 +24,11 @@ describe('Event Serialization', function() {
   describe('Private parameter object', function() {
     it('private should have object style access', function() {
       //priv.__newhidden = 'set new hidden';
-      console.log(`[before] priv.__example = ${priv.__example}`);
+      //console.log(`[before] priv.__example = ${priv.__example}`);
       priv.__example = 'Fucking new';
-      console.log(`[after] priv.__example = ${priv.__example}`);
+      //console.log(`[after] priv.__example = ${priv.__example}`);
       expect(priv.__hiddenValue).to.be.true
-      console.log(priv, JSON.stringify(priv), priv.__hiddenValue);
+      //console.log(priv, JSON.stringify(priv), priv.__hiddenValue);
       expect(priv, 'property like').to.have.property('__hiddenValue', true);
     });
 
@@ -40,17 +40,16 @@ describe('Event Serialization', function() {
       const entries = Object.entries(descriptors);
       let key = priv.showHidden()[0];
       const key1 = { [`${key}`]: priv[key] };
-      console.log({
-        'ShowHidden': priv.showHidden(),
-        'showHidden[0]': key1,
-        descriptors,
-        entries
-      });
+      //console.log({
+        //'ShowHidden': priv.showHidden(),
+        //'showHidden[0]': key1,
+        //descriptors,
+        //entries
+      //});
       // TODO: Right now these aren't pointers, they're effectively clones
       //   - This means we'll have to update the serialized references every
       //     time that the setter is triggered. Ideally they'd be references.
       priv.__hiddenValue = false;
-      console.log(key1)
     });
   });
 

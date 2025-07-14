@@ -40,48 +40,47 @@ interface event {
 interface hiddenValues {
   [key: string]: any;
 }
-const expr = /__*/;
+//const expr = /__*/;
 export class GenericEventPrivate {
-
+  [key: string]: any;
   #priv: hiddenValues = {};
   #__hiddenValue: boolean = true;
   // TODO: Pretty much what I want to do here isn't currently possible in ES6
-  // TODO: This may REQUIRE assigning to a private object.
+  //   - Can do something close with private object
+  //   - generic get/set requires Proxy with what I've found so far
+  //       - Comes with a potential perf hit
+  // TODO: Validate Serialization performance, esp minus cleanups.
+  // TODO: Can proxy hit serialize update at set speed up toJSON enough to matter?
   constructor(...a: any[]) {
-    //super(...a);
+    //super(...a); // If there was a parent
 
     const handler = {
-      //get __hiddenValue() {
-        //return this.__hiddenValue
-      //},
-      //set __hiddenValue(value: boolean) {
-        //this.__hiddenValue = value
-      //},
+      // has: can intercept `in` which might be good here too
       get: (target: any, name: any, receiver: any) => {
-        console.log('get', target, name);
+        //console.log('get', target, name);
         if(!(Reflect.has(target, name)) && !(target?.[name])) {
-          console.log(`Getting non-existent property '${name}'`);
+          //console.log(`Getting non-existent property '${name}'`);
           if (name[0] === '_' && name[1] === '_') { 
             return this.#priv?.[name];
           }
           return undefined;
         }
-        console.log(`get target found for ${name}`);
+        //console.log(`get target found for ${name}`);
         return target?.[name];
         //return Reflect.get(target, name, receiver);
       },
       set: (target: any, name: any, value: any, receiver: any) => {
-        console.log('set', target, name, value, receiver);
+        //console.log('set', target, name, value, receiver);
         if(!Reflect.has(target, name) || !(target?.[name])) {
-          console.log(`Setting non-existent property '${name.toString()}', initial value: ${value}`);
+          //console.log(`Setting non-existent property '${name.toString()}', initial value: ${value}`);
           if (name[0] === '_' && name[1] === '_') {
-            console.log('Checking private access in lambda');
+            //console.log('Checking private access in lambda');
             this.#priv[`${name}`] = value;
-            console.log('SEKRITS', this.#priv); // Can has access?
+            //console.log('SEKRITS', this.#priv); // Can has access?
             return this.#priv[`${name}`] == value
           }
         } else {
-          console.log(`Target found for ${name}`);
+          //console.log(`Target found for ${name}`);
           return target[name];
         }
         return Reflect.set(target, name, value, receiver);
@@ -89,15 +88,17 @@ export class GenericEventPrivate {
     };
     return new Proxy(this, handler);
   }
-  //get['__*'](key: string) {
+  // These will take precedence over the proxy
   get __hiddenValue() {
     return this.#__hiddenValue;
   }
   set __hiddenValue(value: boolean) {
     this.#__hiddenValue = value;
   }
+  //get['__*'](key: string) {
     //return this.#priv[key];
   //}
+  // This doesn't work as actual regex just runtime to string.
   //set[expr](key: string, value: unknown) {
     //if(! this.#priv[`${key}`]) {
       //Object.assign(this.#priv, { [`${key}`]: value });
