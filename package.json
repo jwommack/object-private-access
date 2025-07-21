@@ -3,6 +3,7 @@
     "test": "mocha -r ts-node/register test/*"
   },
   "dependencies": {
+    "benchmark": "^2.1.4",
     "mocha": "^10.2.0",
     "sinon": "^7.2.5"
   },
